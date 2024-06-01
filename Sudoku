@@ -17,23 +17,30 @@ class Board:
         positions = [k for k in range(size * size)]
         random.shuffle(positions)
 
-        while i < 79:
+        dict = {}
+
+        while i < 6:
             if j >= 1000:
                 raise SystemError("Infinite Loop")
             j += 1
-
+            random.shuffle(positions)
             place = positions.pop()
             n = random.randint(1, 9)
             x, y = place % size, place // size
             self.grid[x][y] = n
-
-            if self.solve():
+            dict[place] = n
+            placeholder = Board(9)
+            for key, value in dict.items():
+                placeholder.grid[key % size][key // size] = value
+            if placeholder.solve():
                 i += 1
                 j = 0  # Reset attempts counter after a successful placement
             else:
                 self.grid[x][y] = 0
-                positions.insert(0, place)  # Insert back to the start to retry
-        positions = [k for k in range(size * size)]
+                positions.append(place)
+                del dict[place]
+        
+        self.solve()
 
         for k in range(80, number, -1):
             random.shuffle(positions)
