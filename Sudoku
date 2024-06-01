@@ -1,0 +1,109 @@
+import random
+
+class Board:
+    def __init__(self, size):
+        self.size = size
+        self.grid = [[0 for _ in range(size)] for _ in range(size)]
+
+    def initialize_with_two_arguments(self, size, number):
+        self.size = size
+        self.number = number
+        self.grid = [[0 for _ in range(size)] for _ in range(size)]
+        if number < 17:
+            raise SystemError("Number too small")
+        
+        i = 0
+        j = 0
+        positions = [k for k in range(size * size)]
+        random.shuffle(positions)
+
+        while i < 79:
+            if j >= 1000:
+                raise SystemError("Infinite Loop")
+            j += 1
+
+            place = positions.pop()
+            n = random.randint(1, 9)
+            x, y = place % size, place // size
+            self.grid[x][y] = n
+
+            if self.solve():
+                i += 1
+                j = 0  # Reset attempts counter after a successful placement
+            else:
+                self.grid[x][y] = 0
+                positions.insert(0, place)  # Insert back to the start to retry
+        positions = [k for k in range(size * size)]
+
+        for k in range(80, number, -1):
+            random.shuffle(positions)
+            place = positions.pop()
+            x, y = place % size, place // size
+            self.grid[x][y] = 0
+
+        return None
+    
+    
+
+    def check(self, x, y, k):
+        for i in range(self.size):
+            if self.grid[x][i] == k or self.grid[i][y] == k:
+                return False
+        box_x, box_y = x // 3 * 3, y // 3 * 3
+        for i in range(3):
+            for j in range(3):
+                if self.grid[box_x + i][box_y + j] == k:
+                    return False
+        return True
+
+    def solve(self):
+        empty = self.find_empty_location()
+        if not empty:
+            return True
+        x, y = empty
+
+        for num in range(1, 10):
+            if self.check(x, y, num):
+                self.grid[x][y] = num
+                if self.solve():
+                    return True
+                self.grid[x][y] = 0
+
+        return False
+
+    def find_empty_location(self):
+        for i in range(self.size):
+            for j in range(self.size):
+                if self.grid[i][j] == 0:
+                    return i, j
+        return None
+
+    def __str__(self):
+        board_str = ""
+        for row in self.grid:
+            board_str += " ".join(str(num) for num in row) + "\n"
+        return board_str
+
+# Creating the board and setting initial values
+game = Board(9)
+game.grid[0][1] = 9
+game.grid[0][5] = 5
+game.grid[2][7] = 2
+game.grid[3][3] = 4
+game.grid[4][2] = 3
+game.grid[4][4] = 5
+game.grid[4][6] = 7
+game.grid[5][5] = 6
+game.grid[6][1] = 8
+game.grid[8][3] = 5
+game.grid[8][7] = 1
+
+# Solving the board
+#print(game.solve())
+
+# Printing the board
+#print(game)
+newGame = Board(9)
+newGame.initialize_with_two_arguments(9, 18)
+print(newGame)
+print("123")
